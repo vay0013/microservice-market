@@ -1,4 +1,4 @@
-package com.vay.catalogueservice.controller;
+package com.vay.catalogueservice.controller.dto;
 
 import java.io.Serializable;
 

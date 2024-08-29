@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    driver-class-name:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: catalogue
+    password: catalogue
+  kafka:
+    consumer:
+      group-id: catalogue-topic
+    bootstrap-servers: localhost:9092

@@ -1,4 +1,10 @@
 package com.vay.catalogueservice.repository;
 
-public interface ProductRepository extends org.springframework.data.jpa.repository.JpaRepository<com.vay.catalogueservice.model.Product, java.lang.Long> {
+import com.vay.catalogueservice.model.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface ProductRepository extends JpaRepository<Product, Long> {
+    List<Product> findAllByNameLikeIgnoreCase(String filter);
 }
