@@ -1,1 +1,10 @@
-spring.application.name=order-service
+server:
+  port: 8084
+spring:
+  kafka:
+    consumer:
+      group-id: product
+    bootstrap-servers: localhost:9092
+  data:
+    mongodb:
+      uri: mongodb://mongo:27017/order

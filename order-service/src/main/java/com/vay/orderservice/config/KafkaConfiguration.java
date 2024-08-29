@@ -1,6 +1,6 @@
-package com.vay.catalogueservice.config;
+package com.vay.orderservice.config;
 
-import com.vay.catalogueservice.dto.KafkaProductDto;
+import com.vay.orderservice.dto.ProductDto;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -14,7 +14,7 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.Map;
 
@@ -51,15 +51,19 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    DefaultKafkaProducerFactory<String, KafkaProductDto> productDtoProducerFactory(KafkaProperties properties) {
-        Map<String, Object> producerProperties = properties.buildProducerProperties(null);
-        producerProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        producerProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        return new DefaultKafkaProducerFactory<>(producerProperties);
+    public ConsumerFactory<String, ProductDto> productDtoConsumerFactory(KafkaProperties kafkaProperties) {
+        Map<String, Object> props = kafkaProperties.buildConsumerProperties(null);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.vay.orderservice.dto");
+        return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean
-    KafkaTemplate<String, KafkaProductDto> productDtoKafkaTemplate(DefaultKafkaProducerFactory<String, KafkaProductDto> productDtoProducerFactory) {
-        return new KafkaTemplate<>(productDtoProducerFactory);
+    public KafkaListenerContainerFactory<?> productDtoListenerFactory(ConsumerFactory<String, ProductDto> productDtoConsumerFactory) {
+        ConcurrentKafkaListenerContainerFactory<String, ProductDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(productDtoConsumerFactory);
+        factory.setBatchListener(false);
+        return factory;
     }
 }

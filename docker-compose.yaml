@@ -1,0 +1,98 @@
+services:
+  postgres-db:
+    image: postgres:16.4
+    container_name: postgres
+    restart: no
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: catalogue
+      POSTGRES_PASSWORD: catalogue
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+    depends_on:
+      - microservice-market.catalogue-service
+      - kafka
+  mongo-db:
+    image: mongo:7.0.14
+    container_name: mongo
+    restart: no
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: order
+    healthcheck:
+      test: echo 'db.runCommand({serverStatus:1}).ok' | mongosh admin -u $$MONGO_INITDB_ROOT_USERNAME -p $$MONGO_INITDB_ROOT_PASSWORD --quiet | grep 1
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+    depends_on:
+      - kafka
+      - microservice-market.order-service
+  kafka:
+    image: confluentinc/cp-kafka:7.7.0
+    restart: no
+    ports:
+      - "29092:29092"
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_NODE_ID: 1
+      CLUSTER_ID: 7p646fzGT0KXecu-FUoVdg
+      KAFKA_PROCESS_ROLES: controller,broker
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://kafka:9093
+    healthcheck:
+      test: kafka-topics --bootstrap-server localhost:9092 --list
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+  microservice-market.catalogue-service:
+    image: microservice-market.catalogue-service:latest
+    build:
+      context: catalogue-service
+      args:
+        DOCKER_BUILDKIT: 1
+    restart: no
+    ports:
+      - "8080:8080"
+    networks:
+      - catalogue-service-network
+  microservice-market.order-service:
+    image: microservice-market.order-service:latest
+    build:
+      context: order-service
+      args:
+        DOCKER_BUILDKIT: 1
+    restart: no
+    ports:
+      - "8084:8084"
+    networks:
+      - order-service-network
+volumes:
+  kafka_data:
+  postgres_data:
+  mongo_data:
+networks:
+  order-service-network:
+  catalogue-service-network:
+
