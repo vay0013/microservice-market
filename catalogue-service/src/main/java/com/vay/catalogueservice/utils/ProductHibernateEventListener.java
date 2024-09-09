@@ -26,7 +26,7 @@ public class ProductHibernateEventListener implements PostDeleteEventListener, P
     public void onPostDelete(PostDeleteEvent postDeleteEvent) {
         Object entity = postDeleteEvent.getEntity();
         if (entity instanceof Product product) {
-            kafkaTemplate.send("product", productMapper.toDto(product));
+            kafkaTemplate.send("product", new KafkaProductDto(null, product.getId()));
         }
 
     }
@@ -35,7 +35,7 @@ public class ProductHibernateEventListener implements PostDeleteEventListener, P
     public void onPostUpdate(PostUpdateEvent postUpdateEvent) {
         Object entity = postUpdateEvent.getEntity();
         if (entity instanceof Product product) {
-            kafkaTemplate.send("product", productMapper.toDto(product));
+            kafkaTemplate.send("product", new KafkaProductDto(null, product.getId()));
         }
 
     }

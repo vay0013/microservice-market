@@ -1,6 +1,6 @@
 package com.vay.orderservice.dto;
 
-public record ProductDto(
+public record NewProductToOrder(
         Long id,
         String name,
         String description,

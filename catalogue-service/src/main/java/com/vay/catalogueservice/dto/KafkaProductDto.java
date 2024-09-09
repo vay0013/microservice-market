@@ -1,6 +1,7 @@
 package com.vay.catalogueservice.dto;
 
 import java.io.Serializable;
+import java.util.UUID;
 
-public record KafkaProductDto(Long id, String name, String description, double price) implements Serializable {
+public record KafkaProductDto(UUID userId, long productId) implements Serializable {
 }

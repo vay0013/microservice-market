@@ -1,6 +1,6 @@
 package com.vay.orderservice.config;
 
-import com.vay.orderservice.dto.ProductDto;
+import com.vay.orderservice.dto.NewProductToOrder;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -51,7 +51,7 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public ConsumerFactory<String, ProductDto> productDtoConsumerFactory(KafkaProperties kafkaProperties) {
+    public ConsumerFactory<String, NewProductToOrder> productDtoConsumerFactory(KafkaProperties kafkaProperties) {
         Map<String, Object> props = kafkaProperties.buildConsumerProperties(null);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
@@ -60,8 +60,8 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public KafkaListenerContainerFactory<?> productDtoListenerFactory(ConsumerFactory<String, ProductDto> productDtoConsumerFactory) {
-        ConcurrentKafkaListenerContainerFactory<String, ProductDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public KafkaListenerContainerFactory<?> productDtoListenerFactory(ConsumerFactory<String, NewProductToOrder> productDtoConsumerFactory) {
+        ConcurrentKafkaListenerContainerFactory<String, NewProductToOrder> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(productDtoConsumerFactory);
         factory.setBatchListener(false);
         return factory;
