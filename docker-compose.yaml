@@ -10,7 +10,7 @@ services:
     environment:
       POSTGRES_USER: catalogue
       POSTGRES_PASSWORD: catalogue
-      POSTGRES_DB: postgres
+      POSTGRES_DB: catalogue
     depends_on:
       - microservice-market.catalogue-service
       - kafka
@@ -29,26 +29,6 @@ services:
     depends_on:
       - kafka
       - microservice-market.order-service
-  kafka:
-    image: confluentinc/cp-kafka:7.7.0
-    restart: no
-    ports:
-      - "29092:29092"
-      - "9092:9092"
-    volumes:
-      - kafka_data:/var/lib/kafka/data
-    environment:
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_NODE_ID: 1
-      CLUSTER_ID: 7p646fzGT0KXecu-FUoVdg
-      KAFKA_PROCESS_ROLES: controller,broker
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://kafka:9093
 volumes:
-  kafka_data:
   postgres_data:
   mongo_data:
